@@ -1,6 +1,7 @@
 package com.hhplus.lecture.domain.lecture
 
 import com.hhplus.lecture.domain.common.exception.LectureNotFoundException
+import com.hhplus.lecture.domain.common.exception.RegistrationAlreadyExistsException
 import com.hhplus.lecture.domain.user.User
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,8 +25,16 @@ class LectureService(
 
     @Transactional
     fun register(user: User, lectureId: Long): LectureRegistration {
+        checkIfAlreadyRegistered(user, lectureId)
         val lecture = findByIdWithLock(lectureId).incrementRegisteredCount()
         return lectureRegistrationRepository.save(LectureRegistration(user = user, lecture = lecture))
+    }
+
+    fun checkIfAlreadyRegistered(user: User, lectureId: Long) {
+        val existingRegistration = lectureRegistrationRepository.findByUserIdAndLectureId(user.id!!, lectureId)
+        if (existingRegistration != null) {
+            throw RegistrationAlreadyExistsException("이미 신청한 강의입니다.")
+        }
     }
 
     fun getAvailableLecturesByDate(date: LocalDate): List<Lecture> {

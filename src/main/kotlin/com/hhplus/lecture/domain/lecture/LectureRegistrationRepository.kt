@@ -10,4 +10,6 @@ interface LectureRegistrationRepository {
     fun findByUser(user: User): List<LectureRegistration>
 
     fun findLecturesByUser(user: User): List<Lecture>
+
+    fun findByUserIdAndLectureId(userId: Long, lectureId: Long): LectureRegistration?
 }

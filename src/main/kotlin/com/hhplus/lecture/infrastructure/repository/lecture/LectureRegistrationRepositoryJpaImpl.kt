@@ -24,4 +24,8 @@ class LectureRegistrationRepositoryJpaImpl(
     override fun findLecturesByUser(user: User): List<Lecture> {
         return repository.findLecturesByUser(user)
     }
+
+    override fun findByUserIdAndLectureId(userId: Long, lectureId: Long): LectureRegistration? {
+        return repository.findByUserIdAndLectureId(userId, lectureId)
+    }
 }
