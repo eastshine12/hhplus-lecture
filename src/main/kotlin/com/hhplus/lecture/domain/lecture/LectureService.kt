@@ -12,15 +12,19 @@ class LectureService(
     private val lectureRepository: LectureRepository,
     private val lectureRegistrationRepository: LectureRegistrationRepository,
 ) {
-
     fun findById(id: Long): Lecture {
         return lectureRepository.findByIdOrNull(id)
             ?: throw LectureNotFoundException("강의 정보를 찾을 수 없습니다. ID: $id")
     }
 
+    fun findByIdWithLock(id: Long): Lecture {
+        return lectureRepository.findByIdOrNullWithLock(id)
+            ?: throw LectureNotFoundException("강의 정보를 찾을 수 없습니다. ID: $id")
+    }
+
     @Transactional
     fun register(user: User, lectureId: Long): LectureRegistration {
-        val lecture = findById(lectureId).incrementRegisteredCount()
+        val lecture = findByIdWithLock(lectureId).incrementRegisteredCount()
         return lectureRegistrationRepository.save(LectureRegistration(user = user, lecture = lecture))
     }
 

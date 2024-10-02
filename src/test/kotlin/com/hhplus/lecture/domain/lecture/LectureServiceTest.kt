@@ -47,7 +47,7 @@ class LectureServiceTest {
         val lectureRegistration = LectureRegistration(user = user, lecture = lecture)
 
         every { lectureRegistrationRepository.save(any()) } returns lectureRegistration
-        every { lectureRepository.findByIdOrNull(lecture.id!!) } returns lecture
+        every { lectureRepository.findByIdOrNullWithLock(lecture.id!!) } returns lecture
 
         // when
         val result: LectureRegistration = lectureService.register(user, lectureId)
