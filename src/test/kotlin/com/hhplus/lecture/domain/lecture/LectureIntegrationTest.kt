@@ -84,4 +84,44 @@ class LectureIntegrationTest @Autowired constructor(
         assertEquals(30, lectureRepository.findByIdOrNull(lectureId)!!.registeredCount)
         assertEquals(30, lectureRegistrationRepository.countByLectureId(lectureId!!))
     }
+
+    @Test
+    @Order(2)
+    fun `동일한 유저 정보로 같은 특강을 5번 신청했을 때, 1번만 성공해야 한다`() {
+        // given
+        val user: User = userRepository.save(
+            User(name = "user1", email = "user1@example.com")
+        )
+
+        val lecture: Lecture = lectureRepository.save(
+            Lecture(title = "강의1", lecturerName = "강사1", date = LocalDate.now(), registeredCount = 0)
+        )
+
+        val userIdList = List(5) { user.id!! }
+        val executor: ExecutorService = Executors.newFixedThreadPool(5)
+        val successCount = AtomicInteger(0)
+
+        // when
+        val tasks = userIdList.map {
+            Callable {
+                try {
+                    mockMvc.post("/api/lecture/${lecture.id!!}/register") {
+                        contentType = MediaType.APPLICATION_JSON
+                        content = objectMapper.writeValueAsString(LectureRegisterRequest(userId = it))
+                    }.andExpect {
+                        status { isCreated() }
+                    }
+                    successCount.incrementAndGet()
+                } catch (_: Exception) {
+                }
+            }
+        }
+
+        executor.invokeAll(tasks)
+        executor.shutdown()
+
+        // then
+        assertEquals(1, successCount.get())
+        assertEquals(1, lectureRegistrationRepository.countByLectureId(lecture.id!!))
+    }
 }

@@ -16,4 +16,5 @@ interface LectureRegistrationJpaRepository : JpaRepository<LectureRegistration, 
         WHERE lr.user = :user
     """)
     fun findLecturesByUser(@Param("user") user: User): List<Lecture>
+    fun findByUserIdAndLectureId(userId: Long, lectureId: Long): LectureRegistration?
 }
