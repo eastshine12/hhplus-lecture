@@ -14,6 +14,10 @@ class LectureRepositoryJpaImpl(
         return lectureRepository.save(lecture)
     }
 
+    override fun findByIdOrNullWithLock(lectureId: Long): Lecture? {
+        return lectureRepository.findByIdOrNullWithLock(lectureId)
+    }
+
     override fun findByIdOrNull(lectureId: Long): Lecture? {
         return lectureRepository.findByIdOrNull(lectureId)
     }
